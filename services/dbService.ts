@@ -1,30 +1,22 @@
 import { db } from '../firebase';
-import { 
-  doc, getDoc, setDoc, updateDoc, collection, 
-  getDocs, query, where, increment, runTransaction 
-} from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, getDocs, runTransaction } from "firebase/firestore";
 import { User, SiteSettings, Course } from '../types';
 import { INITIAL_INDEX_NUMBER } from '../constants';
 
-// --- SETTINGS LOGIC ---
-export const getSettings = async (): Promise<SiteSettings> => {
+// --- SETTINGS ---
+export const getSettings = async (): Promise<SiteSettings | null> => {
   const docRef = doc(db, "site", "settings");
   const docSnap = await getDoc(docRef);
-  // Returns cloud data if exists, otherwise returns your local DEFAULT_SETTINGS
-  return docSnap.exists() ? docSnap.data() as SiteSettings : DEFAULT_SETTINGS; 
+  return docSnap.exists() ? (docSnap.data() as SiteSettings) : null;
 };
 
-export const saveSettings = async (settings: SiteSettings) => {
-  await setDoc(doc(db, "site", "settings"), settings);
-};
-
-// --- COURSE LOGIC ---
+// --- COURSES ---
 export const getCourses = async (): Promise<Course[]> => {
   const querySnapshot = await getDocs(collection(db, "courses"));
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Course));
 };
 
-// --- USER & REGISTRATION LOGIC ---
+// --- USER REGISTRATION ---
 export const registerUser = async (userData: any): Promise<User> => {
   const counterRef = doc(db, "metadata", "user_counter");
   
@@ -48,19 +40,7 @@ export const registerUser = async (userData: any): Promise<User> => {
       watchTime: {}
     };
 
-    const userRef = doc(db, "users", newUser.indexNumber);
-    transaction.set(userRef, newUser);
+    transaction.set(doc(db, "users", newUser.indexNumber), newUser);
     return newUser;
   });
-};
-
-export const getUserByIndex = async (index: string): Promise<User | undefined> => {
-  const docSnap = await getDoc(doc(db, "users", index));
-  return docSnap.exists() ? docSnap.data() as User : undefined;
-};
-
-export const updateUser = async (updatedUser: User) => {
-  await setDoc(doc(db, "users", updatedUser.indexNumber), updatedUser, { merge: true });
-  // Keep local mirror for immediate UI response
-  localStorage.setItem('apiwada_user', JSON.stringify(updatedUser));
 };
