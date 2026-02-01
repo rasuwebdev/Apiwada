@@ -1,0 +1,7 @@
+{
+  "name": "ApiWada Physics",
+  "description": "A premium educational platform for Physics students featuring personalized dashboards, progress tracking, and administrative controls.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
