@@ -13,5 +13,5 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app); // This is your database connection
+export const db = getFirestore(app);
 export const analytics = getAnalytics(app);
