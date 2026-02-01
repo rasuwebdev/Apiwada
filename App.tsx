@@ -22,6 +22,27 @@ const App: React.FC = () => {
   const [activeLiveSession, setActiveLiveSession] = useState<LiveSession | null>(null);
   const [liveError, setLiveError] = useState<string | null>(null);
 
+useEffect(() => {
+  const fetchData = async () => {
+    // Call the new async functions from dbService
+    const settings = await getSettings();
+    const courseList = await getCourses();
+    
+    setSiteSettings(settings);
+    setCourses(courseList);
+  };
+
+  fetchData();
+  
+  // Update your interval to be async as well
+  const interval = setInterval(async () => {
+    const settings = await getSettings();
+    setSiteSettings(settings);
+  }, 10000); 
+
+  return () => clearInterval(interval);
+}, []);
+  
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     const handleKeyDown = (e: KeyboardEvent) => {
